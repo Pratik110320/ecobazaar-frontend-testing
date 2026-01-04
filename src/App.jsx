@@ -37,20 +37,31 @@ const ProtectedRoute = ({ children, roles = [] }) => {
     );
   }
   
-  if (!user) {
-    return <Navigate to="/" />;
+    if (!user) {
+    console.log('🚫 No user found, redirecting to login');
+    return <Navigate to="/login" replace />;
   }
 
   if (roles.length > 0 && !roles.includes(user.role)) {
-    return <Navigate to="/dashboard" />;
+    console.log('🚫 User role not authorized, redirecting to dashboard');
+    return <Navigate to="/dashboard" replace />;
   }
-
-  return children;
+    return children;
 };
 
 function AppContent() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
+    if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-emerald-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Initializing...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-emerald-50">
       {user && <Navbar />}

@@ -27,17 +27,31 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const originalRequest = error.config;
+    
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      console.warn('Authentication failed, logging out...');
-      localStorage.removeItem('ecobazaar_token');
-      localStorage.removeItem('ecobazaar_user');
-      window.location.href = '/login';
+      // Token expired or invalid - only clear if not already retrying
+      if (!originalRequest._retry) {
+        console.warn('Authentication failed (401), logging out...');
+        localStorage.removeItem('ecobazaar_token');
+        localStorage.removeItem('ecobazaar_user');
+        
+        // Only redirect to login if not already on login/landing page
+        if (!window.location.pathname.match(/^\/(login|register|$)/)) {
+          window.location.href = '/login';
+        }
+      }
+    } else if (error.response?.status === 403) {
+      // Permission denied - log but don't redirect
+      console.warn('Access forbidden (403) for:', error.config.url);
+      
+      // If it's a critical endpoint (like cart/wishlist), we might need to refresh token
+      // But for now, just log it
     }
+    
     return Promise.reject(error);
   }
 );
-
 // Authentication Services
 export const authService = {
   register: (userData) => api.post('/auth/register', userData),
@@ -242,7 +256,7 @@ export const communityService = {
 };
 
 export const productComparisonService = {
-  compareWithAlternatives: (id) => api.get(`/products/${id}/compare`)
+  compareWithAlternatives: (id) => api.get(`/products/${productId}/compare`)
 };
 
 export default api;

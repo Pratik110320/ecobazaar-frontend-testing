@@ -105,19 +105,25 @@ const Login = () => {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center ml-1">
                 <label className="text-sm font-medium text-gray-700">Password</label>
-                
-              </div>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
-                  <FiLock className="w-5 h-5" />
-                </div>
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="input-modern pl-11"
+    <Link 
+      to="/forgot-password" 
+      className="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+    >
+      Forgot password?
+    </Link>
+  </div>
+  <div className="relative group">
+    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+      <FiLock className="w-5 h-5" />
+    </div>
+    <input
+      type="password"
+      name="password"
+      required
+      value={formData.password}
+      onChange={handleChange}
+      className="input-modern pl-11"
+
                   placeholder="••••••••"
                 />
               </div>

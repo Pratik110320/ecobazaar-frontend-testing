@@ -27,18 +27,25 @@ export const CartProvider = ({ children }) => {
   }, [user]);
 
   const loadCart = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    try {
-      const response = await cartService.getCart(user.id);
-      setCart(response.data);
-    } catch (error) {
-      console.error('Failed to load cart:', error);
-    } finally {
-      setLoading(false);
+  if (!user) return;
+  
+  setLoading(true);
+  try {
+    const response = await cartService.getCart(user.id);
+    setCart(response.data);
+  } catch (error) {
+    console.error('Failed to load cart:', error);
+    // Silently fail - don't block navigation
+    if (error.response?.status === 403 || error.response?.status === 401) {
+      console.warn('Cart access forbidden - user may need to re-login');
+      setCart(null);
+    } else {
+      setCart(null);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const addToCart = async (productId, quantity = 1) => {
     if (!user) return { success: false, error: 'Please login first' };

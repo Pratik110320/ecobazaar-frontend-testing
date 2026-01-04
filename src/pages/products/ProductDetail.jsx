@@ -1,6 +1,4 @@
-
-// src/pages/products/ProductDetail.jsx - COMPLETE CORRECTED VERSION
-
+// src/pages/products/ProductDetail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { productService, reviewService } from '../../services/api';
@@ -34,7 +32,7 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [wishlistLoading, setWishlistLoading] = useState(false); // ADDED THIS LINE
+  const [wishlistLoading, setWishlistLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
   const [imageError, setImageError] = useState(false);
   const [error, setError] = useState(null);
@@ -189,7 +187,7 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
             <div className="flex flex-col">
               <div className="relative bg-gray-100 rounded-xl overflow-hidden aspect-square mb-4">
-                <img src={imgSrc} alt={product.name} onError={() => setImageError(true)} className="w-full h-full object-cover" />
+                <img src={imgSrc} alt={product.name || 'Product image'} onError={() => setImageError(true)} className="w-full h-full object-cover" />
                 <div className="absolute top-4 right-4 flex space-x-2">
                   {product.featured && <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-amber-100 text-amber-800 border border-amber-200"><FiStar className="mr-1" />Featured</span>}
                   {!product.verified && <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-orange-100 text-orange-800 border border-orange-200"><FiClock className="mr-1" />Pending</span>}
@@ -199,35 +197,48 @@ const ProductDetail = () => {
 
             <div className="flex flex-col justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">{product.description}</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name || 'Unnamed Product'}</h1>
+                <p className="text-lg text-gray-600 mb-6 leading-relaxed">{product.description || 'No description available'}</p>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="text-center p-4 bg-emerald-50 rounded-xl">
-                    <div className="text-2xl font-bold text-emerald-600">${product.price}</div>
+                    <div className="text-2xl font-bold text-emerald-600">${product.price || '0.00'}</div>
                     <div className="text-sm text-emerald-700">Price</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-xl">
-                    <div className="text-2xl font-bold text-gray-900">{product.carbonFootprint}kg</div>
+                    <div className="text-2xl font-bold text-gray-900">{product.carbonFootprint || '0'}kg</div>
                     <div className="text-sm text-gray-600">Carbon Footprint</div>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-6">
-                  <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800 border border-emerald-200"><FiTag className="mr-1" />{product.category}</span>
+                  <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800 border border-emerald-200"><FiTag className="mr-1" />{product.category || 'Uncategorized'}</span>
                   <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border ${getEcoRatingClass(product.ecoRating)}`}><FiPackage className="mr-1" />Eco Rating: {product.ecoRating || 'N/A'}</span>
                 </div>
               </div>
 
               {user?.role === 'USER' && (
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button onClick={handleAddToCart} disabled={addingToCart || !product.verified} className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 ${product.verified ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-sm hover:shadow-md' : 'bg-gray-100 text-gray-400 cursor-not-allowed'} disabled:opacity-50 disabled:cursor-not-allowed`}>
-                    {addingToCart ? <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>Adding...</> : product.verified ? <><FiShoppingBag />Add to Cart</> : <><FiClock />Pending Verification</>}
-                  </button>
+                <div className="flex flex-col gap-4">
+                  <div className="flex gap-4">
+                    <button onClick={handleAddToCart} disabled={addingToCart || !product.verified} className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 ${product.verified ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-sm hover:shadow-md' : 'bg-gray-100 text-gray-400 cursor-not-allowed'} disabled:opacity-50 disabled:cursor-not-allowed`}>
+                      {addingToCart ? <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>Adding...</> : product.verified ? <><FiShoppingBag />Add to Cart</> : <><FiClock />Pending Verification</>}
+                    </button>
 
-                  <button onClick={handleWishlist} disabled={wishlistLoading} className={`py-3 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 ${isInWishlist ? 'bg-rose-500 text-white hover:bg-rose-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                    {wishlistLoading ? <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>Updating...</> : <><FiHeart className={isInWishlist ? 'fill-current' : ''} />{isInWishlist ? 'Wishlisted' : 'Add to Wishlist'}</>}
-                  </button>
+                    <button onClick={handleWishlist} disabled={wishlistLoading} className={`py-3 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 ${isInWishlist ? 'bg-rose-500 text-white hover:bg-rose-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                      {wishlistLoading ? <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>Updating...</> : <><FiHeart className={isInWishlist ? 'fill-current' : ''} />{isInWishlist ? 'Wishlisted' : 'Add to Wishlist'}</>}
+                    </button>
+                  </div>
+                  
+                  {/* Compare Button */}
+                  <a
+                    href={`/products/${product.id}/compare`}
+                    className="w-full py-3 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Compare with Alternatives
+                  </a>
                 </div>
               )}
             </div>

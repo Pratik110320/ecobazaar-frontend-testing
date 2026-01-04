@@ -29,21 +29,28 @@ export const WishlistProvider = ({ children }) => {
   }, [user]);
 
   const loadWishlist = async () => {
-    if (!user?.id) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await wishlistService.getUserWishlist(user.id);
-      setWishlist(response.data || []);
-    } catch (error) {
-      console.error('Failed to load wishlist:', error);
+  if (!user?.id) return;
+  
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await wishlistService.getUserWishlist(user.id);
+    setWishlist(response.data || []);
+  } catch (error) {
+    console.error('Failed to load wishlist:', error);
+    // Silently fail - don't block navigation
+    if (error.response?.status === 403 || error.response?.status === 401) {
+      console.warn('Wishlist access forbidden - user may need to re-login');
+      setWishlist([]);
+      setError(null); // Don't show error to user
+    } else {
       setError('Failed to load wishlist');
       setWishlist([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const checkInWishlist = (productId) => {
     if (!wishlist || wishlist.length === 0) return false;
